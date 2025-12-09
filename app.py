@@ -145,6 +145,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
     def evaluate(self, reply, message, history) -> Evaluation:
         messages = [{"role": "system", "content": self.evaluator_system_prompt()}] + [{"role": "user", "content": self.evaluator_user_prompt(reply, message, history)}]
         #response = self.gemini.beta.chat.completions.parse(model="gemini-2.0-flash", messages=messages, response_format=Evaluation)
+        print("HERE!!!")
         response = self.openai.chat.completions.parse(
             model="gpt-4o-mini",
             messages=messages,
