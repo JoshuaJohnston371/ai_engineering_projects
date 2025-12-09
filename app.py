@@ -184,10 +184,8 @@ The Agent has been provided with context on {self.name} in the form of their sum
         updated_system_prompt += f"## Your attempted answer:\n{reply}\n\n"
         updated_system_prompt += f"## Reason for rejection:\n{feedback}\n\n"
         messages = [{"role": "system", "content": updated_system_prompt}] + history + [{"role": "user", "content": message}]
-        print("Rerun content: ", messages)
         #response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=self.sanitize_messages(messages))
         response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages)
-        print("Rerun response")
         return response
     
 
@@ -236,7 +234,8 @@ The Agent has been provided with context on {self.name} in the form of their sum
                     done = True
             else:
                 print("Failed evaluation")
-                print(evaluation.feedback)
+                print(f"The Reply was: {reply}")
+                print(f"Evaluation Feedback: {evaluation.feedback}")
                 #push(f"career_conversation error: {evaluation.feedback}")
                 response = self.rerun(reply, message, history, evaluation.feedback)
                 print("HERE!!!")
