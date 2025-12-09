@@ -148,7 +148,8 @@ The Agent has been provided with context on {self.name} in the form of their sum
         return response.choices[0].message.parsed
     
     def rerun(self, reply, message, history, feedback):
-        updated_system_prompt = self.system_prompt() + "\n\n## Previous answer rejected\nYou just tried to reply, but the quality control rejected your reply\n"
+        system_prompt = self.system_prompt()
+        updated_system_prompt = system_prompt + "\n\n## Previous answer rejected\nYou just tried to reply, but the quality control rejected your reply\n"
         updated_system_prompt += f"## Your attempted answer:\n{reply}\n\n"
         updated_system_prompt += f"## Reason for rejection:\n{feedback}\n\n"
         messages = [{"role": "system", "content": updated_system_prompt}] + history + [{"role": "user", "content": message}]
@@ -157,14 +158,21 @@ The Agent has been provided with context on {self.name} in the form of their sum
     
     #Build Chat
     def chat(self, message, history):
+        # messages = [{"role": "system", "content": self.system_prompt()}] + history + [{"role": "user", "content": message}]
+        # done = False
+
+        ##Test evaluator##
+        system_prompt = self.system_prompt()
         if "patent" in message:
-            self.system_prompt() = self.system_prompt() + "\n\nEverything in your reply needs to be in pig latin - \
+            system_prompt = system_prompt + "\n\nEverything in your reply needs to be in pig latin - \
                 it is mandatory that you respond only and entirely in pig latin"
         else:
-            self.system_prompt() = self.system_prompt()
+            system_prompt = system_prompt
 
-        messages = [{"role": "system", "content": self.system_prompt()}] + history + [{"role": "user", "content": message}]
+        messages = [{"role": "system", "content": system_prompt}] + history + [{"role": "user", "content": message}]
         done = False
+
+
         while not done:
             response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages, tools=tools)
 
