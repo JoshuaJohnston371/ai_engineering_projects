@@ -1,12 +1,6 @@
 ---
-title: Career Conversations
-emoji: 🌍
-colorFrom: gray
-colorTo: pink
-sdk: gradio
-sdk_version: 6.1.0
+title: career_conversations
 app_file: app.py
-pinned: false
+sdk: gradio
+sdk_version: 5.49.1
 ---
-
-Check out the configuration reference at https://huggingface.co/docs/hub/spaces-config-reference
