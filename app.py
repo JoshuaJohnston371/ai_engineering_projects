@@ -206,7 +206,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
 
 
         while not done:
-            response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=self.sanitize_messages(messages), tools=tools)
+            response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages, tools=tools)
 
             #Evaluate response
             reply =response.choices[0].message.content
