@@ -146,8 +146,6 @@ The Agent has been provided with context on {self.name} in the form of their sum
     def evaluate(self, reply, message, history) -> Evaluation:
         messages = [{"role": "system", "content": self.evaluator_system_prompt()}] + [{"role": "user", "content": self.evaluator_user_prompt(reply, message, history)}]
         #response = self.gemini.beta.chat.completions.parse(model="gemini-2.0-flash", messages=messages, response_format=Evaluation)
-        print("HERE!!!")
-        print(f"Evaluator content:\n{messages}")
         response = self.openai.chat.completions.parse(
             model="gpt-4o-mini",
             messages=messages,
@@ -186,7 +184,8 @@ The Agent has been provided with context on {self.name} in the form of their sum
         updated_system_prompt += f"## Your attempted answer:\n{reply}\n\n"
         updated_system_prompt += f"## Reason for rejection:\n{feedback}\n\n"
         messages = [{"role": "system", "content": updated_system_prompt}] + history + [{"role": "user", "content": message}]
-        response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=self.sanitize_messages(messages))
+        #response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=self.sanitize_messages(messages))
+        response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages)
         return response.choices[0].message.content
     
 
@@ -216,26 +215,28 @@ The Agent has been provided with context on {self.name} in the form of their sum
 
             evaluation = self.evaluate(reply, message, history)
             if evaluation.is_acceptable:
+                print(f"Outcome: {evaluation.is_acceptable}")
                 print("Passed evaluation - returning reply or calling tool")
                 if response.choices[0].finish_reason=="tool_calls":
                     message = response.choices[0].message
                     tool_calls = message.tool_calls
-                    messages.append({
-                        "role": "assistant",
-                        "content": "",
-                        "tool_calls": tool_calls
-                    })
+                    # messages.append({
+                    #     "role": "assistant",
+                    #     "content": "",
+                    #     "tool_calls": tool_calls
+                    # })
 
                     results = self.handle_tool_call(tool_calls)
-                    #messages.append(message)
+                    messages.append(message)
                     messages.extend(results)
                 else:
+                    print("no tools called")
                     done = True
             else:
-                print("Failed evaluation - retrying")
+                print("Failed evaluation")
                 print(evaluation.feedback)
-                push(f"career_conversation error: {evaluation.feedback}")
-                reply = self.rerun(reply, message, history, evaluation.feedback)
+                #push(f"career_conversation error: {evaluation.feedback}")
+                #reply = self.rerun(reply, message, history, evaluation.feedback)
         return response.choices[0].message.content
     
 
