@@ -237,6 +237,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
                 print(evaluation.feedback)
                 #push(f"career_conversation error: {evaluation.feedback}")
                 #reply = self.rerun(reply, message, history, evaluation.feedback)
+                done = True
         return response.choices[0].message.content
     
 
