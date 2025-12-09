@@ -134,6 +134,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
 
         evaluator_system_prompt += f"\n\n## Summary:\n{self.summary}\n\n## LinkedIn Profile:\n{self.linkedin}\n\n## Master Resume:\n{self.resume}\n\n"
         evaluator_system_prompt += f"With this context, please evaluate the latest response, replying with whether the response is acceptable and your feedback."
+        return evaluator_system_prompt
 
     def evaluator_user_prompt(self, reply, message, history):
         user_prompt = f"Here's the conversation between the User and the Agent: \n\n{history}\n\n"
@@ -146,7 +147,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
         messages = [{"role": "system", "content": self.evaluator_system_prompt()}] + [{"role": "user", "content": self.evaluator_user_prompt(reply, message, history)}]
         #response = self.gemini.beta.chat.completions.parse(model="gemini-2.0-flash", messages=messages, response_format=Evaluation)
         print("HERE!!!")
-        print(f"Message content:\n{messages}")
+        print(f"Evaluator content:\n{messages}")
         response = self.openai.chat.completions.parse(
             model="gpt-4o-mini",
             messages=messages,
