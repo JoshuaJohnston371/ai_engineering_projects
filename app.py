@@ -147,15 +147,38 @@ The Agent has been provided with context on {self.name} in the form of their sum
         response = self.gemini.beta.chat.completions.parse(model="gemini-2.0-flash", messages=messages, response_format=Evaluation)
         return response.choices[0].message.parsed
     
+    #Sanitize msg before rerun
+    def sanitize_messages(self, msgs):
+        cleaned = []
+        for m in msgs:
+            role = m["role"]
+
+            # content must be a STRING
+            content = m.get("content", "")
+            if content is None:
+                content = ""
+
+            # tool_call messages are allowed, but content must be string
+            new_msg = {"role": role, "content": content}
+
+            # preserve tool_calls if present
+            if "tool_calls" in m:
+                new_msg["tool_calls"] = m["tool_calls"]
+
+            cleaned.append(new_msg)
+        return cleaned
+
     def rerun(self, reply, message, history, feedback):
         system_prompt = self.system_prompt()
         updated_system_prompt = system_prompt + "\n\n## Previous answer rejected\nYou just tried to reply, but the quality control rejected your reply\n"
         updated_system_prompt += f"## Your attempted answer:\n{reply}\n\n"
         updated_system_prompt += f"## Reason for rejection:\n{feedback}\n\n"
         messages = [{"role": "system", "content": updated_system_prompt}] + history + [{"role": "user", "content": message}]
-        response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages)
+        response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=self.sanitize_messages(messages))
         return response.choices[0].message.content
     
+
+
     #Build Chat
     def chat(self, message, history):
         # messages = [{"role": "system", "content": self.system_prompt()}] + history + [{"role": "user", "content": message}]
@@ -174,7 +197,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
 
 
         while not done:
-            response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages, tools=tools)
+            response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=self.sanitize_messages(messages), tools=tools)
 
             #Evaluate response
             reply =response.choices[0].message.content
