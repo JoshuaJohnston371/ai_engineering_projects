@@ -185,8 +185,14 @@ The Agent has been provided with context on {self.name} in the form of their sum
                 if response.choices[0].finish_reason=="tool_calls":
                     message = response.choices[0].message
                     tool_calls = message.tool_calls
+                    messages.append({
+                        "role": "assistant",
+                        "content": "",
+                        "tool_calls": tool_calls
+                    })
+
                     results = self.handle_tool_call(tool_calls)
-                    messages.append(message)
+                    #messages.append(message)
                     messages.extend(results)
                 else:
                     done = True
