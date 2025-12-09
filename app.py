@@ -165,6 +165,10 @@ The Agent has been provided with context on {self.name} in the form of their sum
             if "tool_calls" in m:
                 new_msg["tool_calls"] = m["tool_calls"]
 
+            # preserve tool_call_id (tool responses)
+            if "tool_call_id" in m:
+                new_msg["tool_call_id"] = m["tool_call_id"]
+
             cleaned.append(new_msg)
         return cleaned
 
