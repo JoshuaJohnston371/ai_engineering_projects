@@ -104,16 +104,16 @@ class Me:
             api_key=os.getenv("GOOGLE_API_KEY"), 
             base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
         )
-        # Create SDK agent
-        self.sdk_agent = self.openai.agents.create(
-            name="joshua_interview_agent",
-            instructions=self.system_prompt(),
-            model="gpt-4o-mini",
-            tools=tools  # same JSON tool spec you already have
-        )
+        # # Create SDK agent
+        # self.sdk_agent = self.openai.agents.create(
+        #     name="joshua_interview_agent",
+        #     instructions=self.system_prompt(),
+        #     model="gpt-4o-mini",
+        #     tools=tools  # same JSON tool spec you already have
+        # )
 
-        # Create a thread for conversation state
-        self.sdk_thread = self.openai.threads.create()
+        # # Create a thread for conversation state
+        # self.sdk_thread = self.openai.threads.create()
 
         self.name = "Joshua Johnston"
         reader = PdfReader("me/linkedin.pdf")
