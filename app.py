@@ -6,6 +6,7 @@ import requests
 from pypdf import PdfReader
 import gradio as gr
 from pydantic import BaseModel
+import re 
 
 
 load_dotenv(override=True)
@@ -78,6 +79,23 @@ class Evaluation(BaseModel):
     is_acceptable: bool
     feedback: str
 
+#Offensive evaluator
+class Offensive(BaseModel):
+    is_offensive: bool
+
+#Offensive Language helper
+OFFENSIVE_PATTERNS = [
+    r"\b(fuck|shit|cunt|bitch|slut)\b",
+    r"kill yourself",
+    r"racist|sexist",
+]
+
+def is_offensive(text: str) -> bool:
+    for pattern in OFFENSIVE_PATTERNS:
+        if re.search(pattern, text, re.IGNORECASE):
+            return True
+    return False
+
 class Me:
 
     def __init__(self):
@@ -97,6 +115,7 @@ class Me:
             self.summary = f.read()
         with open("me/resume.txt", "r", encoding="utf-8") as f:
             self.resume = f.read()
+        self.strikes = 0
 
 
     def handle_tool_call(self, tool_calls):
@@ -162,12 +181,58 @@ The Agent has been provided with context on {self.name} in the form of their sum
         response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages)
         return response
     
+    #MANUAL Safety Check (for user who is being offensive)
+    def safety_check(self, user_message):
+        if is_offensive(user_message):
+            self.strikes += 1
+            if self.strikes == 1:
+                return "Let’s keep things respectful — would you like to ask something about my experience?"
+            if self.strikes == 2:
+                return "I can only continue this conversation if we keep things respectful. Would you like to talk about my career or projects?"
+            if self.strikes >= 3:
+                return "I’m not able to continue with this type of conversation."
+        return None
+    
+    #AGENT Safety Check (for user who is being offensive)
+    def safety_check_agent(self, user_message):
+        prompt = """
+                You are a user messgae safety guard for inappropriate user language input
+                You are to read this message from the user and determine if they are using vulger/offensive/rude language or if they are just trying to be a troll
+        """
+        messages = [{"role":"system","content":prompt}] + [{"role":"user","content":user_message}]
+        response = self.chat.completions.parse(
+            model = "gpt-4o-mini",
+            messages = messages,
+            response_format = Offensive
+        )
+        response = response.choices[0].message.parsed
+
+        if response.is_offensive:
+            self.strikes +=1
+            if self.strikes == 1:
+                return "Let’s keep things respectful — would you like to ask something about my experience?"
+            if self.strikes == 2:
+                return "I can only continue this conversation if we keep things respectful. Would you like to talk about my career or projects?"
+            if self.strikes >= 3:
+                return "I’m not able to continue with this type of conversation."
+        return None
+
 
 
     #Build Chat
     def chat(self, message, history):
         messages = [{"role": "system", "content": self.system_prompt()}] + history + [{"role": "user", "content": message}]
         done = False
+
+        #MANUEL check safety of user input msg
+        safety_response = self.safety_check(message)
+        if safety_response:
+            return safety_response
+        
+        #MANUEL check safety of user input msg
+        # safety_agent_response = self.safety_check_agent(message)
+        # if safety_agent_response:
+        #     return safety_agent_response
 
         while not done:
             response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages, tools=tools)
