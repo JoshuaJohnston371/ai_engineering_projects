@@ -187,6 +187,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
             #Evaluate response
             reply = response.choices[0].message.content
             evaluation = self.evaluate(reply, message, history)
+            print("#########")
             print(f"Outcome: {evaluation.is_acceptable}")
             print(f"Reply: {reply}")
 
