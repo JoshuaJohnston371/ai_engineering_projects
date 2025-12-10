@@ -159,7 +159,6 @@ The Agent has been provided with context on {self.name} in the form of their sum
         updated_system_prompt += f"## Your attempted answer:\n{reply}\n\n"
         updated_system_prompt += f"## Reason for rejection:\n{feedback}\n\n"
         messages = [{"role": "system", "content": updated_system_prompt}] + history + [{"role": "user", "content": message}]
-        #response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=self.sanitize_messages(messages))
         response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages)
         return response
     
@@ -195,12 +194,6 @@ The Agent has been provided with context on {self.name} in the form of their sum
                 if response.choices[0].finish_reason=="tool_calls":
                     message = response.choices[0].message
                     tool_calls = message.tool_calls
-                    # messages.append({
-                    #     "role": "assistant",
-                    #     "content": "",
-                    #     "tool_calls": tool_calls
-                    # })
-
                     results = self.handle_tool_call(tool_calls)
                     messages.append(message)
                     messages.extend(results)
