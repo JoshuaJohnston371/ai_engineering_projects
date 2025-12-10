@@ -195,11 +195,15 @@ The Agent has been provided with context on {self.name} in the form of their sum
     
     #AGENT Safety Check (for user who is being offensive)
     def safety_check_agent(self, user_message):
-        prompt = """
+        system_prompt = """
                 You are a user messgae safety guard for inappropriate user language input
-                You are to read this message from the user and determine if they are using vulger/offensive/rude language or if they are just trying to be a troll
-        """
-        messages = [{"role":"system","content":prompt}] + [{"role":"user","content":user_message}]
+                You are to read this message from the user and determine if they are using vulger/offensive/rude language or if they are just trying to be a troll.
+            """
+        user_safety_prompt = f"""
+                Here is the users input message:\n{user_message}\n
+                Please evaluate this message, replying with whether it is offensive or not
+            """
+        messages = [{"role":"system","content":system_prompt}] + [{"role":"user","content":user_safety_prompt}]
         response = self.openai.chat.completions.parse(
             model = "gpt-4o-mini",
             messages = messages,
