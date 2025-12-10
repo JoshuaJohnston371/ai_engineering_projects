@@ -200,7 +200,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
                 You are to read this message from the user and determine if they are using vulger/offensive/rude language or if they are just trying to be a troll
         """
         messages = [{"role":"system","content":prompt}] + [{"role":"user","content":user_message}]
-        response = self.chat.completions.parse(
+        response = self.openai.chat.completions.parse(
             model = "gpt-4o-mini",
             messages = messages,
             response_format = Offensive
