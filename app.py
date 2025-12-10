@@ -152,31 +152,6 @@ The Agent has been provided with context on {self.name} in the form of their sum
             response_format=Evaluation
         )
         return response.choices[0].message.parsed
-    
-    #Sanitize msg before rerun
-    def sanitize_messages(self, msgs):
-        cleaned = []
-        for m in msgs:
-            role = m["role"]
-
-            # content must be a STRING
-            content = m.get("content", "")
-            if content is None:
-                content = ""
-
-            # tool_call messages are allowed, but content must be string
-            new_msg = {"role": role, "content": content}
-
-            # preserve tool_calls if present
-            if "tool_calls" in m:
-                new_msg["tool_calls"] = m["tool_calls"]
-
-            # preserve tool_call_id (tool responses)
-            if "tool_call_id" in m:
-                new_msg["tool_call_id"] = m["tool_call_id"]
-
-            cleaned.append(new_msg)
-        return cleaned
 
     def rerun(self, reply, message, history, feedback):
         system_prompt = self.system_prompt()
