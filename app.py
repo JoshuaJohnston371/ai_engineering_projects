@@ -353,8 +353,6 @@ The Agent has been provided with context on {self.name} in the form of their sum
             message = response.choices[0].message
             finish = response.choices[0].finish_reason
 
-            evaluation = self.evaluate(reply, message, history)
-
             if finish=="tool_calls":
                 print("Tools called")
 
