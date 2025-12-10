@@ -231,6 +231,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
         
         #MANUEL check safety of user input msg
         safety_agent_response = self.safety_check_agent(message)
+        print("Safety Agent response: ", safety_agent_response)
         if safety_agent_response:
             return safety_agent_response
 
