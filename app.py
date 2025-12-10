@@ -166,20 +166,8 @@ The Agent has been provided with context on {self.name} in the form of their sum
 
     #Build Chat
     def chat(self, message, history):
-        # messages = [{"role": "system", "content": self.system_prompt()}] + history + [{"role": "user", "content": message}]
-        # done = False
-
-        ##Test evaluator##
-        system_prompt = self.system_prompt()
-        if "strengths" in message:
-            system_prompt = system_prompt + "\n\nEverything in your reply needs to be in pig latin - \
-                it is mandatory that you respond only and entirely in pig latin"
-        else:
-            system_prompt = system_prompt
-
-        messages = [{"role": "system", "content": system_prompt}] + history + [{"role": "user", "content": message}]
+        messages = [{"role": "system", "content": self.system_prompt()}] + history + [{"role": "user", "content": message}]
         done = False
-
 
         while not done:
             response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages, tools=tools)
@@ -187,9 +175,6 @@ The Agent has been provided with context on {self.name} in the form of their sum
             #Evaluate response
             reply = response.choices[0].message.content
             evaluation = self.evaluate(reply, message, history)
-            print("#########")
-            print(f"Outcome: {evaluation.is_acceptable}")
-            print(f"Reply: {reply}")
 
             if response.choices[0].finish_reason=="tool_calls":
                 print("Tools called")
@@ -198,8 +183,8 @@ The Agent has been provided with context on {self.name} in the form of their sum
                 results = self.handle_tool_call(tool_calls)
                 messages.append(message)
                 messages.extend(results)
-            elif (not evaluation.is_acceptable): #& (response.choices[0].finish_reason!="tool_calls"):
-                print("Unacceptable Answer")
+            elif (not evaluation.is_acceptable):
+                print("Unacceptable Answer\nResponse has been ran again")
                 response = self.rerun(reply, message, history, evaluation.feedback)
                 done = True
             else:
