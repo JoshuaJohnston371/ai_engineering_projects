@@ -197,7 +197,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
                 results = self.handle_tool_call(tool_calls)
                 messages.append(message)
                 messages.extend(results)
-            elif evaluation.is_acceptable & response.choices[0].finish_reason!="tool_calls":
+            elif (evaluation.is_acceptable) & (response.choices[0].finish_reason!="tool_calls"):
                 print("No tools called")
                 done = True
             elif not evaluation.is_acceptable:
