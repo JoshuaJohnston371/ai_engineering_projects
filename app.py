@@ -198,9 +198,8 @@ The Agent has been provided with context on {self.name} in the form of their sum
                 results = self.handle_tool_call(tool_calls)
                 messages.append(message)
                 messages.extend(results)
-            elif (not evaluation.is_acceptable) & (response.choices[0].finish_reason!="tool_calls"):
-                print(f"The Reply was: {reply}")
-                print(f"Evaluation Feedback: {evaluation.feedback}")
+            elif (not evaluation.is_acceptable): #& (response.choices[0].finish_reason!="tool_calls"):
+                print("Unacceptable Answer")
                 response = self.rerun(reply, message, history, evaluation.feedback)
                 done = True
             else:
