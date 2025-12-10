@@ -188,18 +188,18 @@ The Agent has been provided with context on {self.name} in the form of their sum
             print(f"Full Response: {response}")
             reply = response.choices[0].message.content
             evaluation = self.evaluate(reply, message, history)
-            if evaluation.is_acceptable:
+
+            if response.choices[0].finish_reason=="tool_calls":
+                message = response.choices[0].message
+                tool_calls = message.tool_calls
+                results = self.handle_tool_call(tool_calls)
+                messages.append(message)
+                messages.extend(results)
+            elif evaluation.is_acceptable:
                 print(f"Outcome: {evaluation.is_acceptable}")
-                print("Passed evaluation - returning reply or calling tool")
-                if response.choices[0].finish_reason=="tool_calls":
-                    message = response.choices[0].message
-                    tool_calls = message.tool_calls
-                    results = self.handle_tool_call(tool_calls)
-                    messages.append(message)
-                    messages.extend(results)
-                else:
-                    print("no tools called")
-                    done = True
+                print("Passed evaluation - returning reply")
+                print("no tools called")
+                done = True
             else:
                 print("Failed evaluation")
                 #print(f"The prompt was:\n{system_prompt}")
