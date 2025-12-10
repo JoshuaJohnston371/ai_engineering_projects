@@ -185,10 +185,10 @@ The Agent has been provided with context on {self.name} in the form of their sum
             response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages, tools=tools)
 
             #Evaluate response
-            print(f"Full Response: {response}")
             reply = response.choices[0].message.content
             evaluation = self.evaluate(reply, message, history)
             print(f"Outcome: {evaluation.is_acceptable}")
+            print(f"Reply: {reply}")
 
             if response.choices[0].finish_reason=="tool_calls":
                 print("Tools called")
