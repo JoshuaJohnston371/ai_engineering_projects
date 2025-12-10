@@ -383,44 +383,45 @@ The Agent has been provided with context on {self.name} in the form of their sum
             print("All fine, no tools called and acceptible answer")
             return reply
     
-    def chat_sdk(self, user_message):
-        """
-        Clean SDK-based version of the chat pipeline.
-        """
+    # def chat_sdk(self, user_message):
+    #     """
+    #     Clean SDK-based version of the chat pipeline.
+    #     """
 
-        # 1. SAFETY FIRST
-        safety_response = self.safety_check_agent(user_message)
-        if safety_response:
-            return safety_response
+    #     # 1. SAFETY FIRST
+    #     safety_response = self.safety_check_agent(user_message)
+    #     if safety_response:
+    #         return safety_response
 
-        # 2. ADD USER MESSAGE TO THREAD
-        self.openai.threads.messages.create(
-            thread_id=self.sdk_thread.id,
-            role="user",
-            content=user_message
-        )
+    #     # 2. ADD USER MESSAGE TO THREAD
+    #     self.openai.threads.messages.create(
+    #         thread_id=self.sdk_thread.id,
+    #         role="user",
+    #         content=user_message
+    #     )
 
-        # 3. LET THE AGENT RESPOND USING FULL SDK WORKFLOW
-        response = self.openai.agents.responses.create(
-            agent_id=self.sdk_agent.id,
-            thread_id=self.sdk_thread.id
-        )
+    #     # 3. LET THE AGENT RESPOND USING FULL SDK WORKFLOW
+    #     response = self.openai.agents.responses.create(
+    #         agent_id=self.sdk_agent.id,
+    #         thread_id=self.sdk_thread.id
+    #     )
 
-        # 4. GET THE OUTPUT TEXT
-        output = response.output_text
+    #     # 4. GET THE OUTPUT TEXT
+    #     output = response.output_text
 
-        print("SDK Agent output:", output)
+    #     print("SDK Agent output:", output)
 
-        return output
+    #     return output
 
     
 
 if __name__ == "__main__":
     me = Me()
+    gr.ChatInterface(me.chat, type="messages").launch()
 
-    USE_SDK = False  # Toggle this
+    # USE_SDK = False  # Toggle this
 
-    if USE_SDK:
-        gr.ChatInterface(me.chat_sdk, type="messages").launch()
-    else:
-        gr.ChatInterface(me.chat, type="messages").launch()
+    # if USE_SDK:
+    #     gr.ChatInterface(me.chat_sdk, type="messages").launch()
+    # else:
+    #     gr.ChatInterface(me.chat, type="messages").launch()
