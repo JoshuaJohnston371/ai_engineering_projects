@@ -234,6 +234,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
                     done = True
             else:
                 print("Failed evaluation")
+                print(f"The prompt was:\n{system_prompt}")
                 print(f"The Reply was: {reply}")
                 print(f"Evaluation Feedback: {evaluation.feedback}")
                 #push(f"career_conversation error: {evaluation.feedback}")
