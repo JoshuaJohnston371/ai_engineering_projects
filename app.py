@@ -189,7 +189,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
             reply = response.choices[0].message.content
             evaluation = self.evaluate(reply, message, history)
             print(f"Outcome: {evaluation.is_acceptable}")
-            
+
 
             # if response.choices[0].finish_reason=="tool_calls":
             #     print("Tools called")
@@ -208,7 +208,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
             #     done = True
             # else:
             #     print("Other condition")
-            #     done = True
+            done = True
         return response.choices[0].message.content
     
 
