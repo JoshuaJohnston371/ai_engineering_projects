@@ -185,8 +185,8 @@ The Agent has been provided with context on {self.name} in the form of their sum
             response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages, tools=tools)
 
             #Evaluate response
-            reply =response.choices[0].message.content
-
+            print(f"Full Response: {response}")
+            reply = response.choices[0].message.content
             evaluation = self.evaluate(reply, message, history)
             if evaluation.is_acceptable:
                 print(f"Outcome: {evaluation.is_acceptable}")
@@ -202,7 +202,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
                     done = True
             else:
                 print("Failed evaluation")
-                print(f"The prompt was:\n{system_prompt}")
+                #print(f"The prompt was:\n{system_prompt}")
                 print(f"The Reply was: {reply}")
                 print(f"Evaluation Feedback: {evaluation.feedback}")
                 #push(f"career_conversation error: {evaluation.feedback}")
