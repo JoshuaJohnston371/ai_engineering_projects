@@ -188,26 +188,25 @@ The Agent has been provided with context on {self.name} in the form of their sum
             print(f"Full Response: {response}")
             reply = response.choices[0].message.content
             evaluation = self.evaluate(reply, message, history)
+            print(f"Outcome: {evaluation.is_acceptable}")
 
             if response.choices[0].finish_reason=="tool_calls":
+                print("Tools called")
                 message = response.choices[0].message
                 tool_calls = message.tool_calls
                 results = self.handle_tool_call(tool_calls)
                 messages.append(message)
                 messages.extend(results)
-            elif evaluation.is_acceptable:
-                print(f"Outcome: {evaluation.is_acceptable}")
-                print("Passed evaluation - returning reply")
-                print("no tools called")
+            elif evaluation.is_acceptable & response.choices[0].finish_reason!="tool_calls":
+                print("No tools called")
                 done = True
-            else:
-                print("Failed evaluation")
-                #print(f"The prompt was:\n{system_prompt}")
+            elif not evaluation.is_acceptable:
                 print(f"The Reply was: {reply}")
                 print(f"Evaluation Feedback: {evaluation.feedback}")
-                #push(f"career_conversation error: {evaluation.feedback}")
                 response = self.rerun(reply, message, history, evaluation.feedback)
-                print("HERE!!!")
+                done = True
+            else:
+                print("Other condition")
                 done = True
         return response.choices[0].message.content
     
