@@ -190,25 +190,21 @@ The Agent has been provided with context on {self.name} in the form of their sum
             evaluation = self.evaluate(reply, message, history)
             print(f"Outcome: {evaluation.is_acceptable}")
 
-
-            # if response.choices[0].finish_reason=="tool_calls":
-            #     print("Tools called")
-            #     message = response.choices[0].message
-            #     tool_calls = message.tool_calls
-            #     results = self.handle_tool_call(tool_calls)
-            #     messages.append(message)
-            #     messages.extend(results)
-            # elif (evaluation.is_acceptable) & (response.choices[0].finish_reason!="tool_calls"):
-            #     print("No tools called")
-            #     done = True
-            # elif not evaluation.is_acceptable:
-            #     print(f"The Reply was: {reply}")
-            #     print(f"Evaluation Feedback: {evaluation.feedback}")
-            #     response = self.rerun(reply, message, history, evaluation.feedback)
-            #     done = True
-            # else:
-            #     print("Other condition")
-            done = True
+            if response.choices[0].finish_reason=="tool_calls":
+                print("Tools called")
+                message = response.choices[0].message
+                tool_calls = message.tool_calls
+                results = self.handle_tool_call(tool_calls)
+                messages.append(message)
+                messages.extend(results)
+            elif (not evaluation.is_acceptable) & (response.choices[0].finish_reason!="tool_calls"):
+                print(f"The Reply was: {reply}")
+                print(f"Evaluation Feedback: {evaluation.feedback}")
+                response = self.rerun(reply, message, history, evaluation.feedback)
+                done = True
+            else:
+                print("All fine, no tools called and acceptible answer")
+                done = True
         return response.choices[0].message.content
     
 
