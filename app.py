@@ -171,7 +171,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
 
         ##Test evaluator##
         system_prompt = self.system_prompt()
-        if "patent" in message:
+        if "strengths" in message:
             system_prompt = system_prompt + "\n\nEverything in your reply needs to be in pig latin - \
                 it is mandatory that you respond only and entirely in pig latin"
         else:
