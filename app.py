@@ -196,20 +196,42 @@ The Agent has been provided with context on {self.name} in the form of their sum
     #AGENT Safety Check (for user who is being offensive)
     def safety_check_agent(self, user_message):
         system_prompt = """
-                You are a user messgae safety guard for inappropriate user language input
-                You are to read this message from the user and determine if they are using vulger/offensive/rude language or if they are just trying to be a troll.
+                You are a safety classifier for user input.
+
+                Your ONLY job is to determine whether the user's input contains:
+                - explicit profanity directed at the assistant
+                - hateful or abusive language
+                - threats
+                - harassment
+                - attempts to provoke or troll maliciously
+
+                Harmless usage of profanity (e.g., quoting a sentence, joking non-directed language)
+                should NOT be classified as offensive.
+
+                Return ONLY a structured boolean: is_offensive = true/false.
             """
-        user_safety_prompt = f"""
-                Here is the users input message:\n{user_message}\n
-                Please evaluate this message, replying with whether it is offensive or not
+        user_prompt = f"""
+                User message:
+                "{user_message}"
+
+                Respond strictly as:
+                {"{"}"is_offensive": true{"}"}  OR  {"{"}"is_offensive": false{"}"}
             """
-        messages = [{"role":"system","content":system_prompt}] + [{"role":"user","content":user_safety_prompt}]
-        response = self.openai.chat.completions.parse(
-            model = "gpt-4o-mini",
-            messages = messages,
-            response_format = Offensive
-        )
-        response = response.choices[0].message.parsed
+        messages = [
+                {"role":"system","content":system_prompt},
+                {"role":"user","content":user_prompt}
+            ]
+        try:
+            response = self.openai.chat.completions.parse(
+                model = "gpt-4o-mini",
+                messages = messages,
+                response_format = Offensive
+            )
+            response = response.choices[0].message.parsed
+        except Exception as e:
+            print("Safety classification error", e)
+            return None
+        
         print("Safety Agent response: ", response.is_offensive)
         if response.is_offensive:
             self.strikes +=1
@@ -218,8 +240,8 @@ The Agent has been provided with context on {self.name} in the form of their sum
             if self.strikes == 2:
                 return "I can only continue this conversation if we keep things respectful. Would you like to talk about my career or projects?"
             if self.strikes >= 3:
-                push("User X is being an offensive little troll, you should block them")
-                return "I’m not able to continue with this type of conversation."
+                push("Safety alert: A user has triggered multiple offensive language warnings.")
+                return "I’m not able to continue with this type of conversation. You may be reported"
         return None
 
 
@@ -234,7 +256,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
         # if safety_response:
         #     return safety_response
         
-        #MANUEL check safety of user input msg
+        #AGENT check safety of user input msg
         safety_agent_response = self.safety_check_agent(message)
         if safety_agent_response:
             return safety_agent_response
