@@ -218,6 +218,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
             if self.strikes == 2:
                 return "I can only continue this conversation if we keep things respectful. Would you like to talk about my career or projects?"
             if self.strikes >= 3:
+                push("User X is being an offensive little troll, you should block them")
                 return "I’m not able to continue with this type of conversation."
         return None
 
@@ -235,7 +236,6 @@ The Agent has been provided with context on {self.name} in the form of their sum
         
         #MANUEL check safety of user input msg
         safety_agent_response = self.safety_check_agent(message)
-        
         if safety_agent_response:
             return safety_agent_response
 
