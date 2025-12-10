@@ -206,7 +206,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
             response_format = Offensive
         )
         response = response.choices[0].message.parsed
-
+        print("Safety Agent response: ", response.is_offensive)
         if response.is_offensive:
             self.strikes +=1
             if self.strikes == 1:
@@ -231,7 +231,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
         
         #MANUEL check safety of user input msg
         safety_agent_response = self.safety_check_agent(message)
-        print("Safety Agent response: ", safety_agent_response)
+        
         if safety_agent_response:
             return safety_agent_response
 
