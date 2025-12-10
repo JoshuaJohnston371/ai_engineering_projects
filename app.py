@@ -225,14 +225,14 @@ The Agent has been provided with context on {self.name} in the form of their sum
         done = False
 
         #MANUEL check safety of user input msg
-        safety_response = self.safety_check(message)
-        if safety_response:
-            return safety_response
+        # safety_response = self.safety_check(message)
+        # if safety_response:
+        #     return safety_response
         
         #MANUEL check safety of user input msg
-        # safety_agent_response = self.safety_check_agent(message)
-        # if safety_agent_response:
-        #     return safety_agent_response
+        safety_agent_response = self.safety_check_agent(message)
+        if safety_agent_response:
+            return safety_agent_response
 
         while not done:
             response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages, tools=tools)
