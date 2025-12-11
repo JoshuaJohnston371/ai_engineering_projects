@@ -27,21 +27,36 @@ def push(text):
         }
     )
 
-##SDK tool creation (used by both manual and SDK approaches)##
-@function_tool
-def record_user_details(email, name="Name not provided", notes="not provided"):
+##Tool function definitions (undecorated for manual calling)##
+def record_user_details_func(email, name="Name not provided", notes="not provided"):
     """Use this tool to record that a user is interested in being in touch and provided an email address"""
     push(f"Recording {name} with email {email} and notes {notes}")
     return {"recorded": "ok"}
 
-@function_tool
-def record_unknown_question(question):
+def record_unknown_question_func(question):
     """Always use this tool to record any question that couldn't be answered as you didn't know the answer"""
     push(f"Recording {question}")
     return {"recorded": "ok"}
 
-# SDK tools list (for Agent initialization)
+##SDK tool creation (decorated versions for SDK)##
+@function_tool
+def record_user_details(email, name="Name not provided", notes="not provided"):
+    """Use this tool to record that a user is interested in being in touch and provided an email address"""
+    return record_user_details_func(email, name, notes)
+
+@function_tool
+def record_unknown_question(question):
+    """Always use this tool to record any question that couldn't be answered as you didn't know the answer"""
+    return record_unknown_question_func(question)
+
+# SDK tools list (for Agent initialization - uses decorated versions)
 tools_sdk = [record_user_details, record_unknown_question]
+
+# Tool registry for manual tool calling (uses undecorated functions)
+tool_registry = {
+    "record_user_details": record_user_details_func,
+    "record_unknown_question": record_unknown_question_func,
+}
 
 # Manual tools JSON (for non-SDK chat function)
 record_user_details_json = {
@@ -153,8 +168,16 @@ class Me:
             tool_name = tool_call.function.name
             arguments = json.loads(tool_call.function.arguments)
             print(f"Tool called: {tool_name}", flush=True)
-            tool = globals().get(tool_name)
-            result = tool(**arguments) if tool else {}
+            
+            # Get the tool from registry (uses undecorated callable functions)
+            tool = tool_registry.get(tool_name)
+            if tool is None:
+                print(f"Warning: Tool {tool_name} not found in registry", flush=True)
+                result = {}
+            else:
+                # Tool registry contains directly callable functions
+                result = tool(**arguments)
+            
             results.append({"role": "tool","content": json.dumps(result),"tool_call_id": tool_call.id})
         return results
     
