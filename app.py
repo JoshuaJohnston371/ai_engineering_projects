@@ -351,16 +351,16 @@ The Agent has been provided with context on {self.name} in the form of their sum
             )
 
             #Chat response variables
-            message = response.choices[0].message
+            msg = response.choices[0].message
             finish = response.choices[0].finish_reason
 
-            print("Message: ", message)
+            print("Message: ", msg)
             print("Finish: ", finish)
             print("Contents: ", message.content)
             if finish=="tool_calls":
                 print("Tools called")
 
-                tool_calls = message.tool_calls
+                tool_calls = msg.tool_calls
                 tool_results = self.handle_tool_call(tool_calls)
 
                 messages.append({
@@ -373,10 +373,11 @@ The Agent has been provided with context on {self.name} in the form of their sum
                 continue
 
             # --- NORMAL ASSISTANT REPLY --- #
-            reply = message.content
+            reply = msg.content
 
             # Evaluate message
             evaluation = self.evaluate(reply, message, history)
+            print("Evaluation: ", evaluation)
             if not evaluation.is_acceptable:
                 print("Unacceptable Answer\nResponse has been ran again")
                 fixed_response = self.rerun(reply, message, history, evaluation.feedback)
