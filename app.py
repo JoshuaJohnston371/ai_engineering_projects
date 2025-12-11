@@ -329,6 +329,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
 
     #Build Chat
     def chat(self, message, history):
+        print("######")
         ###Safety First###
         #MANUEL check safety of user input msg (##INTEGRATE LATER##)
         # safety_response = self.safety_check(message)
@@ -353,6 +354,9 @@ The Agent has been provided with context on {self.name} in the form of their sum
             message = response.choices[0].message
             finish = response.choices[0].finish_reason
 
+            print("Message: ", message)
+            print("Finish: ", finish)
+            print("Contents: ", message.content)
             if finish=="tool_calls":
                 print("Tools called")
 
