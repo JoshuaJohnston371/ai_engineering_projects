@@ -356,7 +356,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
 
             print("Message: ", msg)
             print("Finish: ", finish)
-            print("Contents: ", message.content)
+            print("Contents: ", msg.content)
             if finish=="tool_calls":
                 print("Tools called")
 
