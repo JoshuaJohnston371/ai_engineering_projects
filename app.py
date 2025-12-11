@@ -543,7 +543,7 @@ if __name__ == "__main__":
     me = Me()
     # gr.ChatInterface(me.chat, type="messages").launch()
 
-    USE_SDK = False  # Toggle this
+    USE_SDK = True  # Toggle this
 
     if USE_SDK:
         gr.ChatInterface(me.chat_sdk, type="messages").launch()
