@@ -343,48 +343,91 @@ The Agent has been provided with context on {self.name} in the form of their sum
 
         messages = [{"role": "system", "content": self.system_prompt()}] + history + [{"role": "user", "content": message}]
 
+        # while True:
+        #     response = self.openai.chat.completions.create(
+        #         model="gpt-4o-mini", 
+        #         messages=messages, 
+        #         tools=tools
+        #     )
+
+        #     #Chat response variables
+        #     msg = response.choices[0].message
+        #     finish = response.choices[0].finish_reason
+
+        #     print("Message: ", msg)
+        #     print("Finish: ", finish)
+        #     print("Contents: ", msg.content)
+        #     if finish=="tool_calls":
+        #         print("Tools called")
+
+        #         tool_calls = msg.tool_calls
+        #         tool_results = self.handle_tool_call(tool_calls)
+
+        #         messages.append({
+        #             "role": "assistant",
+        #             "tool_calls": tool_calls,
+        #             "content": None
+        #         })
+
+        #         messages.extend(tool_results)
+        #         continue
+
+        #     # --- NORMAL ASSISTANT REPLY --- #
+        #     reply = msg.content
+
+        #     # Evaluate message
+        #     evaluation = self.evaluate(reply, message, history)
+        #     print("Evaluation: ", evaluation)
+        #     if not evaluation.is_acceptable:
+        #         print("Unacceptable Answer\nResponse has been ran again")
+        #         fixed_response = self.rerun(reply, message, history, evaluation.feedback)
+        #         return fixed_response.choices[0].message.content
+            
+        #     print("All fine, no tools called and acceptible answer")
+        #     return reply
+        
         while True:
             response = self.openai.chat.completions.create(
-                model="gpt-4o-mini", 
-                messages=messages, 
+                model="gpt-4o-mini",
+                messages=messages,
                 tools=tools
             )
 
-            #Chat response variables
             msg = response.choices[0].message
             finish = response.choices[0].finish_reason
 
-            print("Message: ", msg)
-            print("Finish: ", finish)
-            print("Contents: ", msg.content)
-            if finish=="tool_calls":
-                print("Tools called")
-
+            # 1. Handle tool calls FIRST
+            if finish == "tool_calls":
                 tool_calls = msg.tool_calls
+                print("Tools called:", tool_calls)
+
                 tool_results = self.handle_tool_call(tool_calls)
 
+                # Append assistant tool call message
                 messages.append({
                     "role": "assistant",
                     "tool_calls": tool_calls,
                     "content": None
                 })
 
+                # Append tool results as separate tool messages
                 messages.extend(tool_results)
+
+                # CONTINUE LOOP — allow model to respond to tool output
                 continue
 
-            # --- NORMAL ASSISTANT REPLY --- #
+            # 2. Now handle a normal assistant reply
             reply = msg.content
 
-            # Evaluate message
+            # Evaluate only NORMAL replies
             evaluation = self.evaluate(reply, message, history)
-            print("Evaluation: ", evaluation)
+
             if not evaluation.is_acceptable:
-                print("Unacceptable Answer\nResponse has been ran again")
-                fixed_response = self.rerun(reply, message, history, evaluation.feedback)
-                return fixed_response.choices[0].message.content
-            
-            print("All fine, no tools called and acceptible answer")
+                fixed = self.rerun(reply, message, history, evaluation.feedback)
+                return fixed.choices[0].message.content
+
             return reply
+
     
     # def chat_sdk(self, user_message):
     #     """
