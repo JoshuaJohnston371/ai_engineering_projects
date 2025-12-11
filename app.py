@@ -40,12 +40,12 @@ def record_unknown_question_func(question):
 
 ##SDK tool creation (decorated versions for SDK)##
 @function_tool
-def record_user_details(email, name="Name not provided", notes="not provided"):
+def record_user_details(email: str, name: str = "Name not provided", notes: str = "not provided"):
     """Use this tool to record that a user is interested in being in touch and provided an email address"""
     return record_user_details_func(email, name, notes)
 
 @function_tool
-def record_unknown_question(question):
+def record_unknown_question(question: str):
     """Always use this tool to record any question that couldn't be answered as you didn't know the answer"""
     return record_unknown_question_func(question)
 
