@@ -8,9 +8,15 @@ import gradio as gr
 from pydantic import BaseModel
 import re 
 
+#import Agents SDK
+from agents import Agent, Runner, trace, function_tool
+from openai.types.responses import ResponseTextDeltaEvent
+import asyncio
+
 
 load_dotenv(override=True)
 
+##Helper function##
 def push(text):
     requests.post(
         "https://api.pushover.net/1/messages.json",
@@ -21,15 +27,23 @@ def push(text):
         }
     )
 
-
+##SDK tool creation (used by both manual and SDK approaches)##
+@function_tool
 def record_user_details(email, name="Name not provided", notes="not provided"):
+    """Use this tool to record that a user is interested in being in touch and provided an email address"""
     push(f"Recording {name} with email {email} and notes {notes}")
     return {"recorded": "ok"}
 
+@function_tool
 def record_unknown_question(question):
+    """Always use this tool to record any question that couldn't be answered as you didn't know the answer"""
     push(f"Recording {question}")
     return {"recorded": "ok"}
 
+# SDK tools list (for Agent initialization)
+tools_sdk = [record_user_details, record_unknown_question]
+
+# Manual tools JSON (for non-SDK chat function)
 record_user_details_json = {
     "name": "record_user_details",
     "description": "Use this tool to record that a user is interested in being in touch and provided an email address",
@@ -43,8 +57,7 @@ record_user_details_json = {
             "name": {
                 "type": "string",
                 "description": "The user's name, if they provided it"
-            }
-            ,
+            },
             "notes": {
                 "type": "string",
                 "description": "Any additional information about the conversation that's worth recording to give context"
@@ -104,17 +117,8 @@ class Me:
             api_key=os.getenv("GOOGLE_API_KEY"), 
             base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
         )
-        # # Create SDK agent
-        # self.sdk_agent = self.openai.agents.create(
-        #     name="joshua_interview_agent",
-        #     instructions=self.system_prompt(),
-        #     model="gpt-4o-mini",
-        #     tools=tools  # same JSON tool spec you already have
-        # )
 
-        # # Create a thread for conversation state
-        # self.sdk_thread = self.openai.threads.create()
-
+        #Gather resources FIRST (needed for system prompts)
         self.name = "Joshua Johnston"
         reader = PdfReader("me/linkedin.pdf")
         self.linkedin = ""
@@ -126,9 +130,23 @@ class Me:
             self.summary = f.read()
         with open("me/resume.txt", "r", encoding="utf-8") as f:
             self.resume = f.read()
-        self.strikes = 0
+        
+        self.strikes = 0 #initialise strike counter for offensive language
 
+        ## Create SDK agents (after resources are loaded)
+        self.response_agent = Agent(
+            name="Interview responder Agent (acting as me)",
+            instructions=self.system_prompt(),
+            tools=tools_sdk,
+            model="gpt-4o-mini"
+        )
+        self.evaluator_agent = Agent(
+            name="Evaluate response agent",
+            instructions=self.evaluator_system_prompt(),
+            model="gpt-4o-mini"
+        )
 
+    ##MANUAL tool handling##
     def handle_tool_call(self, tool_calls):
         results = []
         for tool_call in tool_calls:
@@ -274,6 +292,40 @@ The Agent has been provided with context on {self.name} in the form of their sum
         response = self.openai.chat.completions.create(model="gpt-4o-mini", messages=messages)
         return response
     
+    def rerun_sdk(self, reply, message, history, feedback):
+        """
+        SDK version of rerun - creates a temporary agent with updated instructions
+        and feedback about why the previous answer was rejected
+        """
+        # Create updated system prompt with feedback
+        system_prompt = self.system_prompt()
+        updated_system_prompt = system_prompt + "\n\n## Previous answer rejected\nYou just tried to reply, but the quality control rejected your reply\n"
+        updated_system_prompt += f"## Your attempted answer:\n{reply}\n\n"
+        updated_system_prompt += f"## Reason for rejection:\n{feedback}\n\n"
+        updated_system_prompt += "Please provide a better response that addresses the feedback above."
+        
+        # Create a temporary agent with updated instructions
+        temp_agent = Agent(
+            name="Interview responder Agent (acting as me) - Retry",
+            instructions=updated_system_prompt,
+            tools=tools_sdk,
+            model="gpt-4o-mini"
+        )
+        
+        # Build conversation context (same format as chat_sdk)
+        conversation_context = ""
+        for user_msg, assistant_msg in history:
+            conversation_context += f"User: {user_msg}\nAssistant: {assistant_msg}\n\n"
+        conversation_context += f"User: {message}\nAssistant:"
+        
+        # Run the temporary agent with Runner
+        runner = Runner()
+        result = runner.run_sync(
+            starting_agent=temp_agent,
+            input=conversation_context
+        )
+        return result.final_output
+    
     #MANUAL Safety Check (for user who is being offensive)
     def safety_check(self, user_message):
         if is_offensive(user_message):
@@ -320,13 +372,16 @@ The Agent has been provided with context on {self.name} in the form of their sum
                 messages = messages,
                 response_format = Offensive
             )
-            response = response.choices[0].message.parsed
+            parsed_response = response.choices[0].message.parsed
+            if parsed_response is None:
+                print("Safety classification returned None")
+                return None
         except Exception as e:
             print("Safety classification error", e)
             return None
         
-        print("Safety Agent response: ", response.is_offensive)
-        if response.is_offensive:
+        print("Safety Agent response: ", parsed_response.is_offensive)
+        if parsed_response and parsed_response.is_offensive:
             self.strikes +=1
             if self.strikes == 1:
                 return "Let’s keep things respectful — would you like to ask something about my experience?"
@@ -399,45 +454,75 @@ The Agent has been provided with context on {self.name} in the form of their sum
             return reply
 
     
-    # def chat_sdk(self, user_message):
-    #     """
-    #     Clean SDK-based version of the chat pipeline.
-    #     """
-
-    #     # 1. SAFETY FIRST
-    #     safety_response = self.safety_check_agent(user_message)
-    #     if safety_response:
-    #         return safety_response
-
-    #     # 2. ADD USER MESSAGE TO THREAD
-    #     self.openai.threads.messages.create(
-    #         thread_id=self.sdk_thread.id,
-    #         role="user",
-    #         content=user_message
-    #     )
-
-    #     # 3. LET THE AGENT RESPOND USING FULL SDK WORKFLOW
-    #     response = self.openai.agents.responses.create(
-    #         agent_id=self.sdk_agent.id,
-    #         thread_id=self.sdk_thread.id
-    #     )
-
-    #     # 4. GET THE OUTPUT TEXT
-    #     output = response.output_text
-
-    #     print("SDK Agent output:", output)
-
-    #     return output
+    def chat_sdk(self, message, history):
+        """
+        Clean SDK-based version of the chat pipeline using OpenAI Agents SDK.
+        This mirrors the functionality of chat() but uses the SDK's Runner.
+        
+        STEP-BY-STEP EXPLANATION:
+        1. Safety check - same as original
+        2. Build conversation context from history
+        3. Use Runner to get agent response (handles tools automatically)
+        4. Evaluate response quality
+        5. Rerun if needed with feedback
+        """
+        print("###### SDK Chat ######")
+        
+        # STEP 1: Safety check (same as original chat function)
+        safety_agent_response = self.safety_check_agent(message)
+        if safety_agent_response:
+            return safety_agent_response
+        
+        # STEP 2: Build conversation context
+        # The Runner needs the full conversation context. We'll build a formatted
+        # string that includes the history, then add the current message.
+        conversation_context = ""
+        for user_msg, assistant_msg in history:
+            conversation_context += f"User: {user_msg}\nAssistant: {assistant_msg}\n\n"
+        conversation_context += f"User: {message}\nAssistant:"
+        
+        # STEP 3: Use Runner to get response from response_agent
+        # Runner.run_sync takes: starting_agent (the agent) and input (the user input)
+        # The Runner automatically handles tool calls in a loop!
+        runner = Runner()
+        try:
+            result = runner.run_sync(
+                starting_agent=self.response_agent,
+                input=conversation_context
+            )
+            # Extract the final response
+            reply = result.final_output
+        except Exception as e:
+            print(f"Error in Runner: {e}")
+            # Fallback: try with just the current message
+            result = runner.run_sync(
+                starting_agent=self.response_agent,
+                input=message
+            )
+            reply = result.final_output
+        
+        # STEP 4: Evaluate the response (same as original)
+        evaluation = self.evaluate(reply, message, history)
+        print("Evaluation: ", evaluation)
+        
+        if not evaluation.is_acceptable:
+            print("Unacceptable Answer - Response will be rerun")
+            # STEP 5: Rerun with feedback
+            fixed_reply = self.rerun_sdk(reply, message, history, evaluation.feedback)
+            return fixed_reply
+        
+        print("All fine - acceptable answer")
+        return reply
 
     
 
 if __name__ == "__main__":
     me = Me()
-    gr.ChatInterface(me.chat, type="messages").launch()
+    # gr.ChatInterface(me.chat, type="messages").launch()
 
-    # USE_SDK = False  # Toggle this
+    USE_SDK = False  # Toggle this
 
-    # if USE_SDK:
-    #     gr.ChatInterface(me.chat_sdk, type="messages").launch()
-    # else:
-    #     gr.ChatInterface(me.chat, type="messages").launch()
+    if USE_SDK:
+        gr.ChatInterface(me.chat_sdk, type="messages").launch()
+    else:
+        gr.ChatInterface(me.chat, type="messages").launch()
