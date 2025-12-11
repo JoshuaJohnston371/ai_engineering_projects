@@ -384,7 +384,7 @@ The Agent has been provided with context on {self.name} in the form of their sum
                 messages.extend(tool_results)
                 continue
 
-            # --- NORMAL ASSISTANT REPLY --- #
+            #normal reply
             reply = msg.content
 
             # Evaluate message
