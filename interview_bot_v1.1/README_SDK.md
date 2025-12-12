@@ -5,7 +5,6 @@
 ![Python](https://img.shields.io/badge/python-3.10+-blue.svg)
 ![OpenAI](https://img.shields.io/badge/OpenAI-Agents%20SDK-green.svg)
 ![Gradio](https://img.shields.io/badge/Gradio-Interface-orange.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 **An intelligent career chatbot built with OpenAI Agents SDK that represents you in job interviews, handles tool calls automatically, and maintains conversation quality through AI-powered evaluation.**
 
@@ -322,19 +321,13 @@ This is a personal project, but suggestions and improvements are welcome! Feel f
 
 ---
 
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
----
-
 ## 👤 Author
 
 **Joshua Johnston**
 
-- Portfolio: [Your Portfolio URL]
-- LinkedIn: [Your LinkedIn URL]
-- Email: [Your Email]
+- Portfolio: TBC
+- LinkedIn: www.linkedin.com/in/joshua-johnston-5800a613b
+- Email: j.johnston371@hotmail.com
 
 ---
 
