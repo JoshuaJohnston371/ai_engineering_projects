@@ -330,12 +330,13 @@ The Agent has been provided with context on {self.name} in the form of their sum
         updated_system_prompt += f"## Your attempted answer:\n{reply}\n\n"
         updated_system_prompt += f"## Reason for rejection:\n{feedback}\n\n"
         updated_system_prompt += "Please provide a better response that addresses the feedback above."
+        updated_system_prompt += "\n\nIMPORTANT: Do NOT call any tools during this retry. Any necessary tools (like record_unknown_question) have already been called in your previous attempt. Just provide a better text response."
         
-        # Create a temporary agent with updated instructions
+        # Create a temporary agent WITHOUT tools to prevent duplicate tool calls
         temp_agent = Agent(
             name="Interview responder Agent (acting as me) - Retry",
             instructions=updated_system_prompt,
-            tools=tools_sdk,
+            tools=[],  # No tools to prevent duplicate calls
             model="gpt-4o-mini"
         )
         
