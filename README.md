@@ -4,7 +4,6 @@
 
 ![Python](https://img.shields.io/badge/python-3.10+-blue.svg)
 ![OpenAI](https://img.shields.io/badge/OpenAI-Agents%20SDK-green.svg)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 **A curated collection of AI engineering projects showcasing practical applications of artificial intelligence, machine learning, and modern AI frameworks.**
 
@@ -75,7 +74,6 @@ Each project in this portfolio is self-contained with its own:
 ai_engineering_projects/
 │
 ├── README.md                    # This file - Portfolio overview
-├── LICENSE                      # MIT License
 ├── requirements.txt             # Root-level dependencies (if any)
 ├── pyproject.toml              # Python project configuration
 │
@@ -124,7 +122,6 @@ Each project in this portfolio follows these principles:
 - ✅ **Production-ready** with proper error handling and logging
 - ✅ **Modular architecture** for maintainability and extensibility
 - ✅ **Best practices** following Python and AI engineering standards
-- ✅ **Open source** under MIT License
 
 ---
 
@@ -139,12 +136,6 @@ This portfolio is actively growing. Upcoming projects may include:
 - Integration projects combining multiple AI services
 
 *Check back regularly for new additions!*
-
----
-
-## 📄 License
-
-This portfolio and all projects within are open source and available under the [MIT License](LICENSE).
 
 ---
 
