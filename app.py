@@ -30,12 +30,16 @@ def push(text):
 ##Tool function definitions (undecorated for manual calling)##
 def record_user_details_func(email, name="Name not provided", notes="not provided"):
     """Use this tool to record that a user is interested in being in touch and provided an email address"""
+    print(f"TOOL CALLED: record_user_details_func with email={email}, name={name}, notes={notes}", flush=True)
     push(f"Recording {name} with email {email} and notes {notes}")
+    print(f"TOOL COMPLETED: record_user_details_func - push notification sent", flush=True)
     return {"recorded": "ok"}
 
 def record_unknown_question_func(question):
     """Always use this tool to record any question that couldn't be answered as you didn't know the answer"""
+    print(f"TOOL CALLED: record_unknown_question_func with question={question}", flush=True)
     push(f"Recording {question}")
+    print(f"TOOL COMPLETED: record_unknown_question_func - push notification sent", flush=True)
     return {"recorded": "ok"}
 
 ##SDK tool creation (decorated versions for SDK)##
@@ -188,7 +192,7 @@ particularly questions related to {self.name}'s career, background, skills and e
 Your responsibility is to represent {self.name} for interactions on the website as faithfully as possible. \
 You are given a summary of {self.name}'s background and LinkedIn profile which you can use to answer questions. \
 Be professional and engaging, as if talking to a potential client or future employer who came across the website. \
-If you don't know the answer to any question, use your record_unknown_question tool to record the question that you couldn't answer, even if it's about something trivial or unrelated to career. \
+\n\nIMPORTANT: If you don't know the answer to ANY question (even if it's trivial, unrelated to career, or about personal preferences), you MUST use the record_unknown_question tool BEFORE responding. Call the tool with the exact question the user asked, then provide a polite response saying you don't have that information. \
 If the user is engaging in discussion, try to steer them towards getting in touch via email; ask for their email and record it using your record_user_details tool. "
 
         system_prompt += f"\n\n## Summary:\n{self.summary}\n\n## LinkedIn Profile:\n{self.linkedin}\n\n"
@@ -503,10 +507,29 @@ The Agent has been provided with context on {self.name} in the form of their sum
         if safety_agent_response:
             return safety_agent_response
         
-        # STEP 2: Build conversation context
+        # STEP 2: Build conversation messages for Runner
+        # The Runner can accept messages format which preserves conversation context better
         # When using type="messages", Gradio passes history as a list of message dicts
-        # Format: [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}, ...]
-        # We'll convert this to a formatted string for the Runner
+        messages = []
+        if history:
+            # Add history messages
+            for msg in history:
+                role = msg.get("role", "user")
+                content = msg.get("content", "")
+                if role in ["user", "assistant"]:
+                    messages.append({"role": role, "content": content})
+        # Add current user message
+        messages.append({"role": "user", "content": message})
+        
+        # STEP 3: Use Runner to get response from response_agent
+        # Runner.run_sync takes: starting_agent (the agent) and input (the user input)
+        # The Runner automatically handles tool calls in a loop!
+        runner = Runner()
+        
+        # Debug: Verify tools are registered
+        print(f"Agent tools: {[tool.name for tool in self.response_agent.tools] if hasattr(self.response_agent, 'tools') else 'No tools attribute'}", flush=True)
+        
+        # Build conversation context as string (Runner typically uses input parameter)
         conversation_context = ""
         if history:
             for msg in history:
@@ -518,10 +541,6 @@ The Agent has been provided with context on {self.name} in the form of their sum
                     conversation_context += f"Assistant: {content}\n\n"
         conversation_context += f"User: {message}\nAssistant:"
         
-        # STEP 3: Use Runner to get response from response_agent
-        # Runner.run_sync takes: starting_agent (the agent) and input (the user input)
-        # The Runner automatically handles tool calls in a loop!
-        runner = Runner()
         try:
             result = runner.run_sync(
                 starting_agent=self.response_agent,
@@ -529,8 +548,23 @@ The Agent has been provided with context on {self.name} in the form of their sum
             )
             # Extract the final response
             reply = result.final_output
+            
+            # Debug: Check if tools were called
+            print(f"Runner result type: {type(result)}", flush=True)
+            print(f"Runner result attributes: {dir(result)}", flush=True)
+            if hasattr(result, 'steps'):
+                print(f"Number of steps: {len(result.steps) if result.steps else 0}", flush=True)
+                # Check if any steps involved tool calls
+                for i, step in enumerate(result.steps or []):
+                    print(f"Step {i}: {type(step)}, attributes: {[a for a in dir(step) if not a.startswith('_')]}", flush=True)
+                    if hasattr(step, 'tool_calls'):
+                        print(f"Step {i} has tool_calls: {step.tool_calls}", flush=True)
+                    if hasattr(step, 'type'):
+                        print(f"Step {i} type: {step.type}", flush=True)
         except Exception as e:
-            print(f"Error in Runner: {e}")
+            print(f"Error in Runner: {e}", flush=True)
+            import traceback
+            traceback.print_exc()
             # Fallback: try with just the current message
             result = runner.run_sync(
                 starting_agent=self.response_agent,
