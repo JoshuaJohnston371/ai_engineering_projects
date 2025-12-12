@@ -336,9 +336,16 @@ The Agent has been provided with context on {self.name} in the form of their sum
         )
         
         # Build conversation context (same format as chat_sdk)
+        # When using type="messages", Gradio passes history as a list of message dicts
         conversation_context = ""
-        for user_msg, assistant_msg in history:
-            conversation_context += f"User: {user_msg}\nAssistant: {assistant_msg}\n\n"
+        if history:
+            for msg in history:
+                role = msg.get("role", "user")
+                content = msg.get("content", "")
+                if role == "user":
+                    conversation_context += f"User: {content}\n"
+                elif role == "assistant":
+                    conversation_context += f"Assistant: {content}\n\n"
         conversation_context += f"User: {message}\nAssistant:"
         
         # Run the temporary agent with Runner
@@ -497,11 +504,18 @@ The Agent has been provided with context on {self.name} in the form of their sum
             return safety_agent_response
         
         # STEP 2: Build conversation context
-        # The Runner needs the full conversation context. We'll build a formatted
-        # string that includes the history, then add the current message.
+        # When using type="messages", Gradio passes history as a list of message dicts
+        # Format: [{"role": "user", "content": "..."}, {"role": "assistant", "content": "..."}, ...]
+        # We'll convert this to a formatted string for the Runner
         conversation_context = ""
-        for user_msg, assistant_msg in history:
-            conversation_context += f"User: {user_msg}\nAssistant: {assistant_msg}\n\n"
+        if history:
+            for msg in history:
+                role = msg.get("role", "user")
+                content = msg.get("content", "")
+                if role == "user":
+                    conversation_context += f"User: {content}\n"
+                elif role == "assistant":
+                    conversation_context += f"Assistant: {content}\n\n"
         conversation_context += f"User: {message}\nAssistant:"
         
         # STEP 3: Use Runner to get response from response_agent
