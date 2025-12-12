@@ -78,7 +78,7 @@ ai_engineering_projects/
 ├── pyproject.toml              # Python project configuration
 │
 ├── interview_bot_v1.1/         # Interview Bot Project
-│   ├── app_sdk.py             # Main application
+│   ├── chat_bot.py            # Main application
 │   ├── requirements.txt       # Project dependencies
 │   └── README_SDK.md         # Project documentation
 │

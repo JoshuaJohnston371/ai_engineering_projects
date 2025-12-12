@@ -146,7 +146,7 @@ The bot can answer questions about your career, skills, and experience while mai
 
 5. **Run the application**
    ```bash
-   python app_sdk.py
+   python chat_bot.py
    ```
 
 6. **Access the interface**
@@ -211,7 +211,7 @@ Tools are automatically executed by the SDK Runner when the agent decides to use
 ```
 interview_bot_v1.1/
 │
-├── app_sdk.py              # Main application file
+├── chat_bot.py              # Main application file
 ├── requirements.txt        # Python dependencies
 ├── README_SDK.md          # This file
 │
