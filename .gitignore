@@ -194,11 +194,6 @@ memory.db
 # Python code notes directory
 python_code_notes/
 
-# Interview bot - exclude manual and original app files (keep chat_bot.py for employers)
-interview_bot_v1.1/app_manual.py
-interview_bot_v1.1/app.py
-interview_bot_v1.1/app_sdk.py
-
 # Personal/sensitive data in interview bot
 interview_bot_v1.1/me/
 # Allow README and requirements files
