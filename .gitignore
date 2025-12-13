@@ -136,9 +136,6 @@ ENV/
 env.bak/
 venv.bak/
 
-#remove my resources from chatbot
-interview_bot_v1.1/me
-
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -221,7 +218,7 @@ settings.ini
 # Personal information files
 *_personal.txt
 *_private.txt
-resume.txt
-summary.txt
-linkedin.pdf
+**/resume.txt
+**/summary.txt
+**/linkedin.pdf
 personal_info.*
