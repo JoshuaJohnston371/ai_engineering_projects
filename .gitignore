@@ -195,8 +195,9 @@ memory.db
 python_code_notes/
 hugging_space_chat_bot/
 
-# My chat resources
-interview_bot_v1.1/me/
+# My chat resources (ignore all files but keep directory structure)
+interview_bot_v1.1/me/*
+!interview_bot_v1.1/me/.gitkeep
 
 # Environment variables and secrets
 .env
