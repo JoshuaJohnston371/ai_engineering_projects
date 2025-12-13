@@ -196,10 +196,10 @@ memory.db
 
 # Python code notes directory
 python_code_notes/
+hugging_space_chat_bot/
 
-# Allow README and requirements files
-!interview_bot_v1.1/requirements.txt
-!interview_bot_v1.1/README*.md
+# My chat resources
+interview_bot_v1.1/me/
 
 # Environment variables and secrets
 .env
@@ -221,6 +221,7 @@ settings.ini
 # Personal information files
 *_personal.txt
 *_private.txt
-resume.pdf
+resume.txt
+summary.txt
 linkedin.pdf
 personal_info.*
