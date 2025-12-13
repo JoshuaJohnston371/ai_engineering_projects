@@ -136,9 +136,6 @@ ENV/
 env.bak/
 venv.bak/
 
-#Remove README from my hf configs
-interview_bot_v1.1/README.md
-
 #remove my resources from chatbot
 interview_bot_v1.1/me
 
