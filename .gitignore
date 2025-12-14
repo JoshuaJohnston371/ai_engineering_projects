@@ -191,10 +191,12 @@ memory.db
 # Project-specific ignores
 # ============================================
 
-# Python code notes directory
+# Directories to ignore
 python_code_notes/
 hugging_space_chat_bot/
 deep_research/
+gradio_learning/
+deep_research_agents_learning/
 
 # My chat resources (ignore all files but keep directory structure)
 interview_bot_v1.1/me/*
