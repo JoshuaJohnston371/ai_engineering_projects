@@ -194,7 +194,7 @@ memory.db
 # Directories to ignore
 python_code_notes/
 hugging_space_chat_bot/
-deep_research/
+deep_research_v1.1/
 gradio_learning/
 deep_research_agents_learning/
 
