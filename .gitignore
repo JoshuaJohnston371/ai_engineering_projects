@@ -198,6 +198,7 @@ deep_research_v1.1/
 gradio_learning/
 deep_research_agents_learning/
 job_finder_v1.1/
+asyncio_learning/
 
 # My chat resources (ignore all files but keep directory structure)
 interview_bot_v1.1/me/*
