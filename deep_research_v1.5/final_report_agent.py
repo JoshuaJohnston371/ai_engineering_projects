@@ -12,9 +12,10 @@ INSTRUCTIONS = (
     "- Add proper markdown formatting (headers, lists, emphasis, etc.)\n"
     "- Ensure the report flows well and is well-organized\n"
     "- Create a short summary (2-3 sentences) of the key findings\n"
-    "- Generate 3-5 follow-up questions for further research\n\n"
+    "- Generate 3-5 follow-up questions for further research\n"
+    "- IMPORTANT: Do NOT include follow-up questions in the markdown_report field - they should ONLY be in the follow_up_questions field\n\n"
     "The final output should be in markdown format with the same level of detail as the input, "
-    "just better formatted and structured."
+    "just better formatted and structured. The markdown_report should contain ONLY the formatted report content, not the summary or follow-up questions."
 )
 
 

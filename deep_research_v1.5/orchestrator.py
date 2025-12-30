@@ -152,9 +152,13 @@ async def run_advanced_research(query):
                 yield f"**Warning:** {error_msg}"
             
             try:
+                markdown_content = final_report_data.markdown_report
+                
                 follow_up_text = ""
                 if final_report_data.follow_up_questions:
-                    follow_up_text = f"\n\n## Follow-up Questions\n{chr(10).join([f'{i+1}. {q}' for i, q in enumerate(final_report_data.follow_up_questions)])}"
+                    follow_up_section = "## Follow-up Questions"
+                    if follow_up_section.lower() not in markdown_content.lower():
+                        follow_up_text = f"\n\n## Follow-up Questions\n{chr(10).join([f'{i+1}. {q}' for i, q in enumerate(final_report_data.follow_up_questions)])}"
                 
                 formatted_output = f"""# Research Report
 
@@ -163,11 +167,9 @@ async def run_advanced_research(query):
 
 ---
 
-{final_report_data.markdown_report}
+{markdown_content}
 
----
-
-{follow_up_text}
+---{follow_up_text}
 """
                 yield formatted_output
             except Exception as e:
