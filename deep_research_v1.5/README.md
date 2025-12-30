@@ -1,3 +1,9 @@
+---
+title: deep_research_app
+app_file: deep_research.py
+sdk: gradio
+sdk_version: 5.49.1
+---
 # Deep Research System v1.5
 
 An advanced, production-ready multi-agent AI system that autonomously conducts comprehensive research, generates high-quality reports, and delivers them via email. Built using the OpenAI Agents SDK, this system demonstrates sophisticated agentic workflows, strategic model selection, and iterative quality improvement patterns.
