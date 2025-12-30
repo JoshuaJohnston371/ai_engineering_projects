@@ -1,0 +1,19 @@
+# Deep Research Project Dependencies
+
+# UI Framework
+gradio==5.33.1
+
+# Environment Variables
+python-dotenv==1.1.0
+
+# OpenAI Agents SDK (provides 'agents' module)
+openai-agents>=0.0.15
+
+# Data Validation
+pydantic==2.11.5
+
+# HTTP Requests
+requests==2.32.4
+
+# Email Service (optional - used in email_agent.py)
+sendgrid==6.12.3

@@ -195,6 +195,8 @@ memory.db
 python_code_notes/
 hugging_space_chat_bot/
 deep_research_v1.1/
+deep_research_v1.5/legacy_notes_and_files
+deep_research_v1.5/message_agent.py
 gradio_learning/
 deep_research_agents_learning/
 job_finder_v1.1/

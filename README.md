@@ -45,6 +45,26 @@ A production-ready AI career chatbot that acts as a digital representative durin
 
 ---
 
+### 🔬 [Deep Research System v1.5](./deep_research_v1.5/)
+
+**Autonomous multi-agent research system with iterative quality improvement**
+
+An advanced, production-ready multi-agent AI system that autonomously conducts comprehensive research, generates high-quality reports, and delivers them via email. Built using the **OpenAI Agents SDK**, it demonstrates sophisticated agentic workflows, strategic model selection, and iterative quality improvement patterns.
+
+**Key Features:**
+- **Agents-as-Tools Architecture**: Specialized agents converted into reusable tools orchestrated by a central manager
+- **Evaluator-Optimizer Pattern**: Iterative refinement loop with quality scoring (≥0.90 threshold)
+- **Strategic Model Selection**: GPT-4o-mini for generation tasks, GPT-4.1 for critical evaluation
+- **Autonomous Workflow**: Query clarification → Research planning → Web search → Report generation → Quality evaluation → Iterative refinement → Email delivery
+- **Comprehensive Error Handling**: Robust error handling at every stage with graceful degradation
+- **Cost-Optimized**: Reduces API costs by up to 80% through strategic model selection
+
+**Tech Stack:** OpenAI Agents SDK, GPT-4o-mini, GPT-4.1, Gradio, Pydantic, SMTP
+
+[View Project Details →](./deep_research_v1.5/README.md)
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -82,6 +102,18 @@ ai_engineering_projects/
 │   ├── requirements.txt       # Project dependencies
 │   └── README_SDK.md         # Project documentation
 │
+├── deep_research_v1.5/         # Deep Research System Project
+│   ├── deep_research.py       # Main Gradio application
+│   ├── orchestrator.py        # Multi-agent orchestration
+│   ├── research_manager_agent.py  # Research manager agent
+│   ├── evaluator_optimizer_agent.py  # Quality evaluation agent
+│   ├── final_report_agent.py  # Report formatting agent
+│   ├── email_agent.py         # Email delivery agent
+│   ├── clarifier_agent.py     # Query clarification agent
+│   ├── tool_agents/           # Specialized tool agents
+│   ├── requirements.txt       # Project dependencies
+│   └── README.md             # Project documentation
+│
 └── [Future Projects...]        # Additional projects will be added here
 ```
 
@@ -105,10 +137,11 @@ Projects in this portfolio utilize various technologies including:
 | Technology | Purpose |
 |-----------|---------|
 | **OpenAI Agents SDK** | Agent orchestration and tool management |
-| **GPT Models** | Large language model integration |
+| **GPT Models** | Large language model integration (GPT-4o-mini, GPT-4.1) |
 | **Gradio** | Interactive UI development |
 | **Python** | Primary programming language |
 | **Pydantic** | Data validation and structured outputs |
+| **SMTP** | Email delivery and notification |
 
 *Tech stack varies by project - see individual project READMEs for specifics*
 
